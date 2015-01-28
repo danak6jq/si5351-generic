@@ -29,10 +29,12 @@ SI5351_READ_BYTE(reg)
 ```
 
 where:
+```
 	uint8_t	reg:		register address in Si5351
 	uint8_t * datap:	pointer to data buffer for read/write
 	uint8_t count:		count of bytes to transer
 	uint8_t	val:	value to write
+```
 
 Note:
 	If datap == NULL, writes must be 0
@@ -43,12 +45,14 @@ si5351_init(uint32_t freq_xtal, int32_t xtal_correction, int load_cap)
 ```
 
 Arguments:
+```
 	freq_xtal:	reference frequency source in Hz
 	xtal_correct:	correction factor in parts-per-10MHz for reference
 	load_cap:	load capacitance:
 				SI5351_CRYSTAL_LOAD_6PF
 				SI5351_CRYSTAL_LOAD_8PF
 				SI5351_CRYSTAL_LOAD_10PF
+```
 
 Busy-waits for Si5351A to complete power-on reset, initializes
 Si5351A3; simulates power-on reset, then additionally disables
@@ -62,7 +66,9 @@ si5351_calibration_mode(int enable)
 ```
 
 Argument:
+```
 	enable:		0 disables calibration mode, !0 enables
+```
 
 Configures CLK0 to pass-through the crystal oscillator according to
 enable argument.
@@ -73,11 +79,13 @@ si5351_clock_enable(enum si5351_clock clk, int enable)
 ```
 
 Arguments:
+```
 	clk:		clock output, one of:
 				SI5351_CLK0
 				SI5351_CLK1
 				SI5351_CLK2
 	enable:		0 disables, !0 enables
+```
 
 Enables the selected clock output. This function also powers-down
 disabled clock outputs.
@@ -88,6 +96,7 @@ si5351_drive_strength(enum si5351_clock clk, enum si5351_drive drive)
 ```
 
 Arguments:
+```
 	clk:		clock output, one of:
 				SI5351_CLK0
 				SI5351_CLK1
@@ -97,6 +106,7 @@ Arguments:
 				SI5351_DRIVE_4MA
 				SI5351_DRIVE_6MA
 				SI5351_DRIVE_8MA
+```
 
 Sets the drive level for the selected clock output.
 
@@ -107,6 +117,7 @@ si5351_set_frequency(uint32_t freq, uint32_t pll_freq,
 ```
 
 Arguments:
+```
 	freq:		desired frequency in Hz
 	pll_freq:	PLL frequency in Hz; 0 to allow selection
 	clock:		clock output to program, one of:
@@ -117,6 +128,7 @@ Arguments:
 				SI5351_MS_MODE_FRAC
 				SI5351_MS_MODE_INT
 				SI5351_MS_MODE_EVEN_INT
+```
 
 Programs the selected clock output to the chosen frequency 'freq'.
 If pll_freq == 0, the PLL is programmed to the highest usable frequency;
