@@ -9,7 +9,7 @@ These functions depend on being fed sane parameters; there's no
 error indication if you ask the Si5351 to do something it is
 not capable of, or if you ask it to do something conflicting (in
 particular, pay attention to output frequencies between 150 and
-160MHz on CLK1 and CLK2 outputs (see below).
+160MHz on CLK1 and CLK2 outputs (see below)).
 
 I strongly suggest using only a single output of the
 Si5351 for RF applications, since there is a relatively
