@@ -21,10 +21,12 @@ phase noise performance.
 
 I2C functional interface macros (in si5351.h):
 
+```
 SI5351_WRITE_XFER(reg, datap, count)
 SI5351_READ_XFER(reg, datap, count)
 SI5351_WRITE_BYTE(reg, val)
 SI5351_READ_BYTE(reg)
+```
 
 where:
 	uint8_t	reg:		register address in Si5351
@@ -35,8 +37,10 @@ where:
 Note:
 	If datap == NULL, writes must be 0
 
+```
 void
 si5351_init(uint32_t freq_xtal, int32_t xtal_correction, int load_cap)
+```
 
 Arguments:
 	freq_xtal:	reference frequency source in Hz
@@ -52,8 +56,10 @@ and powers-down all clock outputs. Generates corrected reference
 frequency using the reference frequency source and correction factor.
 
 
+```
 void
 si5351_calibration_mode(int enable)
+```
 
 Argument:
 	enable:		0 disables calibration mode, !0 enables
@@ -61,8 +67,10 @@ Argument:
 Configures CLK0 to pass-through the crystal oscillator according to
 enable argument.
 
+```
 void
 si5351_clock_enable(enum si5351_clock clk, int enable)
+```
 
 Arguments:
 	clk:		clock output, one of:
@@ -74,8 +82,10 @@ Arguments:
 Enables the selected clock output. This function also powers-down
 disabled clock outputs.
 
+```
 void
 si5351_drive_strength(enum si5351_clock clk, enum si5351_drive drive)
+```
 
 Arguments:
 	clk:		clock output, one of:
@@ -90,10 +100,11 @@ Arguments:
 
 Sets the drive level for the selected clock output.
 
-
+```
 uint32_t
 si5351_set_frequency(uint32_t freq, uint32_t pll_freq,
   enum si5351_clock clock, enum si5351_ms_mode ms_mode)
+```
 
 Arguments:
 	freq:		desired frequency in Hz
