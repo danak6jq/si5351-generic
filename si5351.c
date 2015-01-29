@@ -48,12 +48,12 @@
 #define RFRAC_DENOM (1L << 24)
 
 static void rational_best_approximation(
-        uint32_t, uint32_t,
-        uint32_t, uint32_t,
-        uint32_t *, uint32_t *);
+		uint32_t, uint32_t,
+		uint32_t, uint32_t,
+		uint32_t *, uint32_t *);
 static int32_t pll_calc(int32_t, struct Si5351RegSet *);
 static int32_t multisynth_calc(int32_t, uint32_t, enum si5351_ms_mode,
-    struct Si5351RegSet *);
+	struct Si5351RegSet *);
 
 int32_t	plla_freq, pllb_freq;
 int32_t    freq_ref;
@@ -64,43 +64,43 @@ int32_t    freq_ref;
 void
 si5351_init(int32_t freq_xtal, int32_t xtal_correction, int load_cap)
 {
-    int clock;
+	int clock;
 
-    /*
-     * Wait for system init completion - occurs after power-up
-     */
-    while (SI5351_READ_BYTE(SI5351_DEVICE_STATUS) & SI5351_STATUS_SYS_INIT)
-        ;
-    
-    /*
-     * Reset the Si5351 to power-on state
-     */
-    SI5351_WRITE_XFER(SI5351_DEVICE_STATUS, NULL,
-      SI5351_FANOUT_ENABLE - SI5351_DEVICE_STATUS + 1);
-    SI5351_WRITE_BYTE(SI5351_PLL_RESET,
-      SI5351_PLL_RESET_B | SI5351_PLL_RESET_A);
-    SI5351_WRITE_BYTE(SI5351_OUTPUT_ENABLE_CTRL, 0xFF);
-    /* Disable state - select high-Z */
-    SI5351_WRITE_BYTE(SI5351_CLK3_0_DISABLE_STATE,
-      SI5351_CLK_DISABLE_STATE_FLOAT |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 2 |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 4 |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 6);
-    SI5351_WRITE_BYTE(SI5351_CLK7_4_DISABLE_STATE,
-      SI5351_CLK_DISABLE_STATE_FLOAT |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 2 |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 4 |
-      SI5351_CLK_DISABLE_STATE_FLOAT << 6);
-    SI5351_WRITE_BYTE(SI5351_CRYSTAL_LOAD, load_cap);
-    
-    /* Disable and power-down clock outputs */
-    for (clock = SI5351_CLK0; clock <= SI5351_CLK7; clock++)
-        si5351_clock_enable(clock, 0);
+	/*
+	 * Wait for system init completion - occurs after power-up
+	 */
+	while (SI5351_READ_BYTE(SI5351_DEVICE_STATUS) & SI5351_STATUS_SYS_INIT)
+		;
+	
+	/*
+	 * Reset the Si5351 to power-on state
+	 */
+	SI5351_WRITE_XFER(SI5351_DEVICE_STATUS, NULL,
+	  SI5351_FANOUT_ENABLE - SI5351_DEVICE_STATUS + 1);
+	SI5351_WRITE_BYTE(SI5351_PLL_RESET,
+	  SI5351_PLL_RESET_B | SI5351_PLL_RESET_A);
+	SI5351_WRITE_BYTE(SI5351_OUTPUT_ENABLE_CTRL, 0xFF);
+	/* Disable state - select high-Z */
+	SI5351_WRITE_BYTE(SI5351_CLK3_0_DISABLE_STATE,
+	  SI5351_CLK_DISABLE_STATE_FLOAT |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 2 |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 4 |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 6);
+	SI5351_WRITE_BYTE(SI5351_CLK7_4_DISABLE_STATE,
+	  SI5351_CLK_DISABLE_STATE_FLOAT |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 2 |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 4 |
+	  SI5351_CLK_DISABLE_STATE_FLOAT << 6);
+	SI5351_WRITE_BYTE(SI5351_CRYSTAL_LOAD, load_cap);
+	
+	/* Disable and power-down clock outputs */
+	for (clock = SI5351_CLK0; clock <= SI5351_CLK7; clock++)
+		si5351_clock_enable(clock, 0);
 
 	/* Calculated corrected reference frequency */
 	/* xtal_correction is Measured in parts-per-ten million */
-    freq_ref = freq_xtal + (int32_t)((((((int64_t)xtal_correction) << 31) /
-      10000000LL) * freq_xtal) >> 31);
+	freq_ref = freq_xtal + (int32_t)((((((int64_t)xtal_correction) << 31) /
+	  10000000LL) * freq_xtal) >> 31);
 }
 
 // get frequency
@@ -114,20 +114,20 @@ si5351_init(int32_t freq_xtal, int32_t xtal_correction, int load_cap)
 void
 si5351_calibration_mode(int enable)
 {
-    
-    if (enable) {
-        SI5351_WRITE_BYTE(SI5351_FANOUT_ENABLE,
-          SI5351_READ_BYTE(SI5351_FANOUT_ENABLE) | SI5351_XTAL_ENABLE);
-        SI5351_WRITE_BYTE(SI5351_CLK0_CTRL,
-          (SI5351_READ_BYTE(SI5351_CLK0_CTRL) & ~SI5351_CLK_INPUT_MASK) |
-          SI5351_CLK_INPUT_XTAL);
-    } else {
-        SI5351_WRITE_BYTE(SI5351_CLK0_CTRL,
-          (SI5351_READ_BYTE(SI5351_CLK0_CTRL) & ~SI5351_CLK_INPUT_MASK) |
-          SI5351_CLK_INPUT_MULTISYNTH_N);
-        SI5351_WRITE_BYTE(SI5351_FANOUT_ENABLE,
-          SI5351_READ_BYTE(SI5351_FANOUT_ENABLE) & ~SI5351_XTAL_ENABLE);
-    }
+	
+	if (enable) {
+		SI5351_WRITE_BYTE(SI5351_FANOUT_ENABLE,
+		  SI5351_READ_BYTE(SI5351_FANOUT_ENABLE) | SI5351_XTAL_ENABLE);
+		SI5351_WRITE_BYTE(SI5351_CLK0_CTRL,
+		  (SI5351_READ_BYTE(SI5351_CLK0_CTRL) & ~SI5351_CLK_INPUT_MASK) |
+		  SI5351_CLK_INPUT_XTAL);
+	} else {
+		SI5351_WRITE_BYTE(SI5351_CLK0_CTRL,
+		  (SI5351_READ_BYTE(SI5351_CLK0_CTRL) & ~SI5351_CLK_INPUT_MASK) |
+		  SI5351_CLK_INPUT_MULTISYNTH_N);
+		SI5351_WRITE_BYTE(SI5351_FANOUT_ENABLE,
+		  SI5351_READ_BYTE(SI5351_FANOUT_ENABLE) & ~SI5351_XTAL_ENABLE);
+	}
 }
 
 /*
@@ -144,19 +144,19 @@ si5351_clock_enable(enum si5351_clock clk, int enable)
 	uint8_t reg_val;
 
 	reg_val = SI5351_READ_BYTE(SI5351_OUTPUT_ENABLE_CTRL) |
-      (1 << (uint8_t)clk);
+	  (1 << (uint8_t)clk);
 
 	if (enable) {
 		reg_val &= ~(1<<(uint8_t)clk);
 	}
 	SI5351_WRITE_BYTE(SI5351_OUTPUT_ENABLE_CTRL, reg_val);
-    
+	
 	reg_val = SI5351_READ_BYTE(SI5351_CLK0_CTRL + (uint8_t)clk) |
-      SI5351_CLK_POWERDOWN;
-    
-    if (enable) {
-        reg_val &= ~SI5351_CLK_POWERDOWN;
-    }
+	  SI5351_CLK_POWERDOWN;
+	
+	if (enable) {
+		reg_val &= ~SI5351_CLK_POWERDOWN;
+	}
 	SI5351_WRITE_BYTE(SI5351_CLK0_CTRL + (uint8_t)clk, reg_val);
 }
 
@@ -176,7 +176,7 @@ si5351_drive_strength(enum si5351_clock clk, enum si5351_drive drive)
 	uint8_t reg_val;
 
 	reg_val = SI5351_READ_BYTE(SI5351_CLK0_CTRL + (uint8_t)clk) &
-      ~SI5351_CLK_DRIVE_STRENGTH_MASK;
+	  ~SI5351_CLK_DRIVE_STRENGTH_MASK;
 
 	switch(drive) {
 	case SI5351_DRIVE_2MA:
@@ -203,45 +203,45 @@ si5351_set_ms_source(enum si5351_clock clk, enum si5351_pll pll,
 	uint8_t reg_val;
 
 	reg_val = SI5351_READ_BYTE(SI5351_CLK0_CTRL + (uint8_t)clk);
-    reg_val |= SI5351_CLK_INPUT_MULTISYNTH_N;
-    reg_val &= ~(SI5351_CLK_POWERDOWN | SI5351_CLK_INTEGER_MODE);
+	reg_val |= SI5351_CLK_INPUT_MULTISYNTH_N;
+	reg_val &= ~(SI5351_CLK_POWERDOWN | SI5351_CLK_INTEGER_MODE);
 
 	if(pll == SI5351_PLLA) {
 		reg_val &= ~(SI5351_CLK_PLL_SELECT);
 	} else if (pll == SI5351_PLLB) {
 		reg_val |= SI5351_CLK_PLL_SELECT;
 	}
-    
-    if (ms_mode == SI5351_MS_MODE_EVEN_INT) {
-        reg_val |= SI5351_CLK_INTEGER_MODE;
-    }
-    
+	
+	if (ms_mode == SI5351_MS_MODE_EVEN_INT) {
+		reg_val |= SI5351_CLK_INTEGER_MODE;
+	}
+	
 	SI5351_WRITE_BYTE(SI5351_CLK0_CTRL + (uint8_t)clk, reg_val);
 }
 
 static int
 si5351_set_pll(int32_t pll_freq, enum si5351_pll pll_prog)
 {
-   	struct Si5351RegSet pllreg;
-    int addr;
-    char regbuf[8];
-    
-    /* keep track of PLL programming */
-    switch (pll_prog) {
-    case SI5351_PLLA:
-        plla_freq = pll_freq;
-        addr = SI5351_PLLA_PARAMETERS;
-        break;
-    case SI5351_PLLB:
-        pllb_freq = pll_freq;
-        addr = SI5351_PLLB_PARAMETERS;
-        break;
-    }
-    
+	struct Si5351RegSet pllreg;
+	int addr;
+	char regbuf[8];
+	
+	/* keep track of PLL programming */
+	switch (pll_prog) {
+	case SI5351_PLLA:
+		plla_freq = pll_freq;
+		addr = SI5351_PLLA_PARAMETERS;
+		break;
+	case SI5351_PLLB:
+		pllb_freq = pll_freq;
+		addr = SI5351_PLLB_PARAMETERS;
+		break;
+	}
+	
 	if (pll_calc(pll_freq, &pllreg) < 0) {
-        /* indicate error */
-        return (-1);
-    }
+		/* indicate error */
+		return (-1);
+	}
 	
 	/* Registers 26-27 */
 	regbuf[0] = (uint8_t) (pllreg.p3 >> 8);
@@ -256,7 +256,7 @@ si5351_set_pll(int32_t pll_freq, enum si5351_pll pll_prog)
 
 	/* Register 31 */
 	regbuf[5] = ((uint8_t) ((pllreg.p3 >> 12) & 0xF0)) |
-      ((uint8_t) ((pllreg.p2 >> 16) & 0x0F));
+	  ((uint8_t) ((pllreg.p2 >> 16) & 0x0F));
 
 	/* Registers 32-33 */
 	regbuf[6] = (uint8_t) (pllreg.p2 >> 8);
@@ -264,18 +264,18 @@ si5351_set_pll(int32_t pll_freq, enum si5351_pll pll_prog)
 
 	/* Write the parameters */
 	SI5351_WRITE_XFER(addr, (uint8_t *) regbuf, 8);
-    /* XXX: Reset the PLL? */
-    
-    return (pll_freq);
+	/* XXX: Reset the PLL? */
+	
+	return (pll_freq);
 }
 
 static int
 si5351_set_multisynth(struct Si5351RegSet *msreg, enum si5351_clock clock,
   enum si5351_pll pll_prog, enum si5351_ms_mode ms_mode)
 {
-    int addr = -1;
-    char regbuf[8];
-    
+	int addr = -1;
+	char regbuf[8];
+	
 	/* Registers 42-43 */
 	regbuf[0] = (uint8_t) (msreg->p3 >> 8);
 	regbuf[1] = (uint8_t) msreg->p3;
@@ -290,13 +290,13 @@ si5351_set_multisynth(struct Si5351RegSet *msreg, enum si5351_clock clock,
 
 	/* Register 47 */
 	regbuf[5] = (uint8_t) ((msreg->p3 >> 12) & 0xF0) |
-      (uint8_t) ((msreg->p2 >> 16) & 0x0F);
+	  (uint8_t) ((msreg->p2 >> 16) & 0x0F);
 
 	/* Registers 48-49 */
 	regbuf[6] = (uint8_t) (msreg->p2 >> 8);
 	regbuf[7] = (uint8_t) msreg->p2;
 
-   	switch (clock) {
+	switch (clock) {
 	case SI5351_CLK0:
 		addr = SI5351_CLK0_PARAMETERS;
 		break;
@@ -306,18 +306,18 @@ si5351_set_multisynth(struct Si5351RegSet *msreg, enum si5351_clock clock,
 	case SI5351_CLK2:
 		addr = SI5351_CLK2_PARAMETERS;
 		break;
-    default:
-        break;
+	default:
+		break;
 	}
 
-    /* anything invalid for the Si5351A3 */
-    if (addr < 0) {
-        return (-1);
-    }
-    
+	/* anything invalid for the Si5351A3 */
+	if (addr < 0) {
+		return (-1);
+	}
+	
 	SI5351_WRITE_XFER(addr, (uint8_t *) regbuf, 8);
-    si5351_set_ms_source(clock, pll_prog, ms_mode);
-    return (0);
+	si5351_set_ms_source(clock, pll_prog, ms_mode);
+	return (0);
 }
 
 /*
@@ -329,20 +329,20 @@ si5351_set_frequency(int32_t freq, int32_t pll_freq,
 {
 	struct Si5351RegSet msreg;
 	int pll_prog;
-    int program_pll = 0;
+	int program_pll = 0;
 	
 	/*
 	 * if pll_freq == 0, let multisynth_calc() pick the PLL frequency
 	 */
-    pll_freq = multisynth_calc(freq, pll_freq, ms_mode, &msreg);
-	 
+	pll_freq = multisynth_calc(freq, pll_freq, ms_mode, &msreg);
+	
 	 /*
 	  * select PLL
 	  */
 	switch (clock) {
 	case SI5351_CLK0:
-        pll_prog = SI5351_PLLA;
-        program_pll = (plla_freq != pll_freq);
+		pll_prog = SI5351_PLLA;
+		program_pll = (plla_freq != pll_freq);
 		break;
 	/* CLK1 and CLK2 share PLLB; first programmed sets PLL freq */
 	case SI5351_CLK1:
@@ -351,7 +351,7 @@ si5351_set_frequency(int32_t freq, int32_t pll_freq,
 		if (pllb_freq != 0) {
 			pll_freq = multisynth_calc(freq, pllb_freq, SI5351_MS_MODE_FRAC, &msreg);
 		} else {
-            program_pll = 1;
+			program_pll = 1;
 		}
 		break;
 	default:
@@ -359,17 +359,17 @@ si5351_set_frequency(int32_t freq, int32_t pll_freq,
 		break;
 	}
 
-    if (pll_freq > 0) {
-        if (program_pll) {
-            pll_freq = si5351_set_pll(pll_freq, pll_prog);
-        }
+	if (pll_freq > 0) {
+		if (program_pll) {
+			pll_freq = si5351_set_pll(pll_freq, pll_prog);
+		}
 Control_Reg_1_Write(program_pll);
-        if (pll_freq > 0) {
-            si5351_set_multisynth(&msreg, clock, pll_prog, ms_mode);
-        }
-    }
-    
-    return (pll_freq);
+		if (pll_freq > 0) {
+			si5351_set_multisynth(&msreg, clock, pll_prog, ms_mode);
+		}
+	}
+	
+	return (pll_freq);
 }
 
 
@@ -392,9 +392,9 @@ Control_Reg_1_Write(program_pll);
 
 static void
 rational_best_approximation(
-        uint32_t given_numerator, uint32_t given_denominator,
-        uint32_t max_numerator, uint32_t max_denominator,
-        uint32_t *best_numerator, uint32_t *best_denominator)
+		uint32_t given_numerator, uint32_t given_denominator,
+		uint32_t max_numerator, uint32_t max_denominator,
+		uint32_t *best_numerator, uint32_t *best_denominator)
 {
 	unsigned long n, d, n0, d0, n1, d1;
 	n = given_numerator;
@@ -432,12 +432,12 @@ pll_calc(int32_t freq, struct Si5351RegSet *reg)
 
 	/* Determine integer part of feedback equation */
 	a = freq / freq_ref;
-    b = 0;
-    c = 1;
-    rfrac = (((uint64_t)(freq % freq_ref)) * RFRAC_DENOM) / freq_ref;
+	b = 0;
+	c = 1;
+	rfrac = (((uint64_t)(freq % freq_ref)) * RFRAC_DENOM) / freq_ref;
 	if (rfrac)
 		rational_best_approximation(rfrac, RFRAC_DENOM,
-				    SI5351_PLL_B_MAX, SI5351_PLL_C_MAX, &b, &c);
+					SI5351_PLL_B_MAX, SI5351_PLL_C_MAX, &b, &c);
 
 	/* calculate parameters */
 	reg->p3  = c;
@@ -445,14 +445,14 @@ pll_calc(int32_t freq, struct Si5351RegSet *reg)
 	reg->p1  = 128 * a + (128 * b / c) - 512;
 
 	/* recalculate rate by fIN * (a + b/c) */
-    freq = (uint32_t) ((((uint64_t) freq_ref) * ((uint64_t) b)) / c) +
-      freq_ref * a;
+	freq = (uint32_t) ((((uint64_t) freq_ref) * ((uint64_t) b)) / c) +
+	  freq_ref * a;
 
-    if ((a < SI5351_PLL_A_MIN) || (a > SI5351_PLL_A_MAX) ||
-      (freq < SI5351_PLL_VCO_MIN) || (freq > SI5351_PLL_VCO_MAX)) {
-        freq = -1;
-    }
-    
+	if ((a < SI5351_PLL_A_MIN) || (a > SI5351_PLL_A_MAX) ||
+	  (freq < SI5351_PLL_VCO_MIN) || (freq > SI5351_PLL_VCO_MAX)) {
+		freq = -1;
+	}
+	
 	return (freq);
 }
 
@@ -464,50 +464,49 @@ multisynth_calc(int32_t freq, uint32_t pll_freq,
 
 	/* Calculate parameters */
 	if (freq > SI5351_MULTISYNTH_DIVBY4_FREQ) {
-        a = 4;
-        b = 0;
-        c = 1;
-        pll_freq = a * freq;
+		a = 4;
+		b = 0;
+		c = 1;
+		pll_freq = a * freq;
 
 		reg->p3 = 1;
 		reg->p2 = 0;
 		reg->p1 = 0;
-    } else {
-        if (pll_freq == 0) {
-            pll_freq = SI5351_PLL_VCO_MAX;
-            /* arrange for integer MS divider */
-            if (ms_mode == SI5351_MS_MODE_INT ||
-              ms_mode == SI5351_MS_MODE_EVEN_INT) {
-                a = pll_freq / freq;
-                if (ms_mode == SI5351_MS_MODE_EVEN_INT) {
-                    a &= ~1;
-                }
-                pll_freq = a * freq;
-            }
-        }
-        a = pll_freq / freq;
-        b = 0;
-        c = 1;
-        rfrac = (uint32_t) ((((uint64_t) (pll_freq % freq)) *
-          RFRAC_DENOM) / freq);
-        
-	    if (rfrac) {
-            rational_best_approximation(rfrac, RFRAC_DENOM,
+	} else {
+		if (pll_freq == 0) {
+			pll_freq = SI5351_PLL_VCO_MAX;
+			/* arrange for integer MS divider */
+			if (ms_mode == SI5351_MS_MODE_INT ||
+			  ms_mode == SI5351_MS_MODE_EVEN_INT) {
+				a = pll_freq / freq;
+				if (ms_mode == SI5351_MS_MODE_EVEN_INT) {
+					a &= ~1;
+				}
+				pll_freq = a * freq;
+			}
+		}
+		a = pll_freq / freq;
+		b = 0;
+		c = 1;
+		rfrac = (uint32_t) ((((uint64_t) (pll_freq % freq)) *
+		  RFRAC_DENOM) / freq);
+		
+		if (rfrac) {
+			rational_best_approximation(rfrac, RFRAC_DENOM,
 			  SI5351_MULTISYNTH_B_MAX, SI5351_MULTISYNTH_C_MAX, &b, &c);
-        } else {
-            pll_freq = a * freq;
-        }
-        
-        /* bounds check */
-        if ((a < SI5351_MULTISYNTH_A_MIN) || (a > SI5351_MULTISYNTH_A_MAX)) {
-            pll_freq = -1;
-        }
-        
+		} else {
+			pll_freq = a * freq;
+		}
+		
+		/* bounds check */
+		if ((a < SI5351_MULTISYNTH_A_MIN) || (a > SI5351_MULTISYNTH_A_MAX)) {
+			pll_freq = -1;
+		}
+		
 		reg->p3  = c;
 		reg->p2  = (128 * b) % c;
 		reg->p1  = 128 * a + (128 * b / c) - 512;
 	}
 
-    return (pll_freq);
+	return (pll_freq);
 }
-

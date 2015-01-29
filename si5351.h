@@ -250,4 +250,3 @@ uint8_t si5351_read_byte(uint8_t);
 #define SI5351_READ_BYTE    si5351_read_byte    /* reg */
 
 #endif /* SI5351_H_ */
-
