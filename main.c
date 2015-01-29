@@ -56,16 +56,6 @@ si5351_write_byte(uint8_t reg, uint8_t val)
     si5351_write_xfer(reg, &val, 1);
 }
 
-void
-si5351_write_word(uint8_t reg, uint16_t val)
-{
-    uint8_t data[2];
-    
-    data[0] = HI8(val);
-    data[1] = LO8(val);
-    si5351_write_xfer(reg, (uint8_t *) &data, 2);
-}
-
 uint8_t
 si5351_read_byte(uint8_t reg)
 {
@@ -73,14 +63,6 @@ si5351_read_byte(uint8_t reg)
     
     si5351_read_xfer(reg, &data, 1);
     return (data);
-}
-
-uint16_t
-si5351_read_word(uint8_t reg)
-{
-    uint8_t data[2];
-    si5351_read_xfer(reg, (uint8_t *) &data, 2);
-    return ((data[0] << 8) || (data[1]));
 }
 
 /*
@@ -100,7 +82,8 @@ si5351_read_word(uint8_t reg)
 
 int main()
 {
-    uint32_t freq, pll_freq;
+    int32_t freq, pll_freq, count = 0;
+    int a = 0;
     
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
 
@@ -108,11 +91,12 @@ int main()
     
     I2C_1_Start();
     
-    si5351_init(27000000, 1607, SI5351_CRYSTAL_LOAD_10PF);
+    si5351_init(27000000, 1612, SI5351_CRYSTAL_LOAD_10PF);
     
     si5351_clock_enable(SI5351_CLK0, 1);
     si5351_drive_strength(SI5351_CLK0, SI5351_DRIVE_4MA);
-    pll_freq = si5351_set_frequency(11700000, 0, SI5351_CLK0, SI5351_MS_MODE_EVEN_INT);
+    pll_freq = si5351_set_frequency(11700000, 0, SI5351_CLK0, SI5351_MS_MODE_FRAC);
+
 #if 0
     si5351_calibration_mode(1);
     // while (1) ;
@@ -121,7 +105,7 @@ int main()
 #if 0
     si5351_clock_enable(SI5351_CLK1, 1);
     si5351_drive_strength(SI5351_CLK1, SI5351_DRIVE_6MA);
-    pll_freq = si5351_set_frequency(155050000, 0, SI5351_CLK1, SI5351_MS_MODE_INT);
+    pll_freq = si5351_set_frequency(155050000, 0, SI5351_CLK1, SI5351_MS_MODE_EVEN_INT);
 #endif
     
 #if 0
@@ -133,10 +117,13 @@ int main()
     si5351_set_frequency(155050000, 0, SI5351_CLK2);
 #endif
 
-   //pll_freq = 0;
-   while (1) // ;
-    for (freq = 11700000; freq < 11702000; freq += 1) {
-            si5351_set_frequency(freq, pll_freq, SI5351_CLK0, SI5351_MS_MODE_EVEN_INT);
+    pll_freq = 0;
+    while (1)  // ;
+    {
+        //Control_Reg_1_Write(a++ & 1);
+        for (freq = 11700000; freq < 11702000; freq += 1) {
+            int rv = si5351_set_frequency(freq, pll_freq, SI5351_CLK0, SI5351_MS_MODE_FRAC);
+        }
     }
         
     for(;;)

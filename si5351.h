@@ -230,10 +230,12 @@ struct Si5351IntStatus
 };
 
 
-void si5351_init(uint32_t, int32_t, int);
+void si5351_init(int32_t, int32_t, int);
 void si5351_calibration_mode(int);
-uint32_t si5351_set_frequency(uint32_t, uint32_t, enum si5351_clock,
+
+int32_t si5351_set_frequency(int32_t, int32_t, enum si5351_clock,
   enum si5351_ms_mode);
+
 void si5351_drive_strength(enum si5351_clock, enum si5351_drive);
 void si5351_clock_enable(enum si5351_clock, int);
 
@@ -248,3 +250,4 @@ uint8_t si5351_read_byte(uint8_t);
 #define SI5351_READ_BYTE    si5351_read_byte    /* reg */
 
 #endif /* SI5351_H_ */
+
