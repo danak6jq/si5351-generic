@@ -5,6 +5,10 @@ Dana H. Myers  K6JQ
 
 General notes:
 
+Development of these functions is currently on a PSOC 4 Dev board, which contains an ARM
+Cortex-M0. However, si5351.c and si5351.h should easily integrated into other C-language
+environments, including avr-gcc.
+
 These functions depend on being fed sane parameters; there is only
 minimal error checking if you ask the Si5351 to do something it is
 not capable of, or if you ask it to do something conflicting (in
