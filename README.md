@@ -5,18 +5,18 @@ Dana H. Myers  K6JQ
 
 General notes:
 
-These functions depend on being fed sane parameters; there's no
-error indication if you ask the Si5351 to do something it is
+These functions depend on being fed sane parameters; there is only
+minimal error checking if you ask the Si5351 to do something it is
 not capable of, or if you ask it to do something conflicting (in
-particular, pay attention to output frequencies between 150 and
-160MHz on CLK1 and CLK2 outputs (see below)).
+particular, pay attention to output frequencies above 150MHz on
+CLK1 and CLK2 outputs (see below)).
 
 I strongly suggest using only a single output of the
 Si5351 for RF applications, since there is a relatively
 large amount of cross-talk between the clock outputs.
 
 The MultiSynth mode parameter can be used to force the
-clock divider into integer mode, which likely reduces RF
+clock divider into integer mode, which likely improves RF
 phase noise performance.
 
 I2C functional interface macros (in si5351.h):
@@ -111,8 +111,8 @@ Arguments:
 Sets the drive level for the selected clock output.
 
 ```
-uint32_t
-si5351_set_frequency(uint32_t freq, uint32_t pll_freq,
+int32_t
+si5351_set_frequency(int32_t freq, int32_t pll_freq,
   enum si5351_clock clock, enum si5351_ms_mode ms_mode)
 ```
 
@@ -134,19 +134,22 @@ Programs the selected clock output to the chosen frequency 'freq'.
 If pll_freq == 0, the PLL is programmed to the highest usable frequency;
 if not 0, the PLL is programmed to this frequency. The PLL is programmed
 with a fractional divisor. If the chose frequency 'freq' is between 150
-and 160MHz, the PLL is fixed at 4 * freq.
+and 160MHz, the PLL is fixed at 4 * freq. Invalid frequency selection is
+indicated with a return of -1, otherwise the PLL frequency used is returned.
 
 ms_mode selects the MultiSynth divider mode when pll_freq is 0; MODE_FRAC
 selects a fractional divisor, MODE_INT selects an integer divisor in
 fractional mode and MODE_EVEN_INT selects an even integer divisor and
 forces the MultiSynth to integer mode, which may improve phase noise.
-For chosen frequencies between 150 and 160MHz, ms_mode is ignored and a
-divisor of 4 is used.
+For chosen frequencies above 150MHz, ms_mode is ignored and a divisor
+of 4 is used. Note that the chip is only specied for an output to 160MHz
+but it will produce up to 225MHz if programmed, with a reduced output
+swing.
 
 Outputs CLK1 and CLK2 share the same PLL; the first output programmed
 determines the PLL frequency and the second output programmed will use
 this PLL frequency regardless of pll_freq. Further, ms_mode will be
 forced to MODE_FRAC for the second output programmed. Since a single
-PLL is shared, only one of CLK1 and CLK2 can generate a frequency between
-between 150 and 160MHz and must be the first output programmed.
+PLL is shared, only one of CLK1 and CLK2 can generate a frequency
+above 150MHz and must be the first output programmed.
 
