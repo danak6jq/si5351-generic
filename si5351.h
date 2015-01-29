@@ -186,14 +186,14 @@
  * @SI5351_VARIANT_C: Si5351C (8 output clocks, XTAL/CLKIN input)
  */
 enum si5351_variant {
-	SI5351_VARIANT_A = 1,
-	SI5351_VARIANT_A3 = 2,
-	SI5351_VARIANT_B = 3,
-	SI5351_VARIANT_C = 4,
+    SI5351_VARIANT_A = 1,
+    SI5351_VARIANT_A3 = 2,
+    SI5351_VARIANT_B = 3,
+    SI5351_VARIANT_C = 4,
 };
 
 enum si5351_clock {SI5351_CLK0 = 0, SI5351_CLK1, SI5351_CLK2, SI5351_CLK3,
-	SI5351_CLK4, SI5351_CLK5, SI5351_CLK6, SI5351_CLK7};
+    SI5351_CLK4, SI5351_CLK5, SI5351_CLK6, SI5351_CLK7};
 
 enum si5351_pll {SI5351_PLLA = 0, SI5351_PLLB};
 
@@ -207,26 +207,26 @@ enum si5351_ms_mode { SI5351_MS_MODE_FRAC, SI5351_MS_MODE_INT,
 
 struct Si5351RegSet
 {
-	uint32_t p1;
-	uint32_t p2;
-	uint32_t p3;
+    uint32_t p1;
+    uint32_t p2;
+    uint32_t p3;
 };
 
 struct Si5351Status
 {
-	uint8_t SYS_INIT;
-	uint8_t LOL_B;
-	uint8_t LOL_A;
-	uint8_t LOS;
-	uint8_t REVID;
+    uint8_t SYS_INIT;
+    uint8_t LOL_B;
+    uint8_t LOL_A;
+    uint8_t LOS;
+    uint8_t REVID;
 };
 
 struct Si5351IntStatus
 {
-	uint8_t SYS_INIT_STKY;
-	uint8_t LOL_B_STKY;
-	uint8_t LOL_A_STKY;
-	uint8_t LOS_STKY;
+    uint8_t SYS_INIT_STKY;
+    uint8_t LOL_B_STKY;
+    uint8_t LOL_A_STKY;
+    uint8_t LOS_STKY;
 };
 
 
