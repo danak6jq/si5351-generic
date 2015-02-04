@@ -5,9 +5,8 @@ Dana H. Myers  K6JQ
 
 General notes:
 
-Development of these functions is currently on a PSOC 4 Dev board, which contains an ARM
-Cortex-M0. However, si5351.c and si5351.h should easily integrated into other C-language
-environments, including avr-gcc.
+Development of these functions is currently on a PSoC 5LP freeSoC mini,
+which contains an ARM Cortex-M0. However, si5351.c and si5351.h should easily integrated into other C-language environments, including avr-gcc.
 
 These functions depend on being fed sane parameters; there is only
 minimal error checking if you ask the Si5351 to do something it is
@@ -59,9 +58,9 @@ Arguments:
 ```
 
 Busy-waits for Si5351A to complete power-on reset, initializes
-Si5351A3; simulates power-on reset, then additionally disables
-and powers-down all clock outputs. Generates corrected reference
-frequency using the reference frequency source and correction factor.
+Si5351A3; disables and powers-down all clock outputs. Generates corrected
+reference frequency using the reference frequency source and correction
+factor.
 
 
 ```
@@ -117,7 +116,7 @@ Sets the drive level for the selected clock output.
 ```
 int32_t
 si5351_set_frequency(int32_t freq, int32_t pll_freq,
-  enum si5351_clock clock, enum si5351_ms_mode ms_mode)
+  enum si5351_clock clock, int reset)
 ```
 
 Arguments:
@@ -128,27 +127,16 @@ Arguments:
 				SI5351_CLK0
 				SI5351_CLK1
 				SI5351_CLK2
-	ms_mode:	MultiSynth divider mode, one of:
-				SI5351_MS_MODE_FRAC
-				SI5351_MS_MODE_INT
-				SI5351_MS_MODE_EVEN_INT
+	reset:		Force PLL reset after frequency change; required
+			when changing above or below 150MHz.
 ```
 
 Programs the selected clock output to the chosen frequency 'freq'.
 If pll_freq == 0, the PLL is programmed to the highest usable frequency;
 if not 0, the PLL is programmed to this frequency. The PLL is programmed
-with a fractional divisor. If the chose frequency 'freq' is between 150
+with a fractional divisor. If the chosen frequency 'freq' is between 150
 and 160MHz, the PLL is fixed at 4 * freq. Invalid frequency selection is
 indicated with a return of -1, otherwise the PLL frequency used is returned.
-
-ms_mode selects the MultiSynth divider mode when pll_freq is 0; MODE_FRAC
-selects a fractional divisor, MODE_INT selects an integer divisor in
-fractional mode and MODE_EVEN_INT selects an even integer divisor and
-forces the MultiSynth to integer mode, which may improve phase noise.
-For chosen frequencies above 150MHz, ms_mode is ignored and a divisor
-of 4 is used. Note that the chip is only specied for an output to 160MHz
-but it will produce up to 225MHz if programmed, with a reduced output
-swing.
 
 Outputs CLK1 and CLK2 share the same PLL; the first output programmed
 determines the PLL frequency and the second output programmed will use
