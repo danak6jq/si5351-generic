@@ -257,7 +257,7 @@ pll_calc(int32_t freq, uint8_t *regs)
     }
 
     b = (((uint64_t)(freq % freq_ref)) * RFRAC_DENOM) / freq_ref;
-    c = b ? RFRAC_DENOM : 1;
+    c = b ? RFRAC_DENOM : 0;
 #if 0
     if ((b > 0) && (a == SI5351_PLL_A_MAX)) {
         return (-1);
@@ -289,7 +289,7 @@ pll_calc(int32_t freq, uint8_t *regs)
 
     
     /* avoid loss of precision here */
-    freq = a * freq_ref + (b * freq_ref) / c;
+    freq = a * freq_ref + (((uint64_t)b) * freq_ref) / c;
 #if 0
     if ((freq < SI5351_PLL_VCO_MIN) || (freq > SI5351_PLL_VCO_MAX)) {
         freq = -1;
