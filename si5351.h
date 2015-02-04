@@ -200,16 +200,25 @@ enum si5351_pll {SI5351_PLLA = 0, SI5351_PLLB};
 enum si5351_drive {SI5351_DRIVE_2MA = 0, SI5351_DRIVE_4MA,
   SI5351_DRIVE_6MA, SI5351_DRIVE_8MA};
 
-enum si5351_ms_mode { SI5351_MS_MODE_FRAC, SI5351_MS_MODE_INT,
-  SI5351_MS_MODE_EVEN_INT };
+enum si5351_ms_mode { SI5351_MS_MODE_FRAC, SI5351_MS_MODE_INT };
 
 /* Struct definitions */
 
-struct Si5351RegSet
+struct Si5351PLLRegSet
 {
-    uint32_t p1;
-    uint32_t p2;
-    uint32_t p3;
+    int32_t     msn_p1;
+    int32_t     msn_p2;
+    int32_t     msn_p3;
+};
+
+struct Si5351MSRegSet
+{
+    int32_t     ms_p1;
+    int32_t     ms_p2;
+    int32_t     ms_p3;
+    int32_t     ms_r0;
+    unsigned    ms_int:1,
+                ms_divby4:2;
 };
 
 struct Si5351Status
@@ -233,8 +242,7 @@ struct Si5351IntStatus
 void si5351_init(int32_t, int32_t, int);
 void si5351_calibration_mode(int);
 
-int32_t si5351_set_frequency(int32_t, int32_t, enum si5351_clock,
-  enum si5351_ms_mode);
+int32_t si5351_set_frequency(int32_t, int32_t, enum si5351_clock, int);
 
 void si5351_drive_strength(enum si5351_clock, enum si5351_drive);
 void si5351_clock_enable(enum si5351_clock, int);

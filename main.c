@@ -18,36 +18,44 @@
 static void
 si5351_start_xfer(uint8_t reg)
 {
-    (void) I2C_1_I2CMasterSendStart(SI5351_I2C_ADDR, I2C_1_I2C_WRITE_XFER_MODE);
-    (void) I2C_1_I2CMasterWriteByte(reg); /* write register address */
+    (void) I2C_1_MasterSendStart(SI5351_I2C_ADDR, I2C_1_WRITE_XFER_MODE);
+    (void) I2C_1_MasterWriteByte(reg); /* write register address */
 }
 
 void
 si5351_write_xfer(uint8_t reg, uint8_t *data, int count)
 {
     /* if data is NULL, write 0x00 instead */
+#if 1
     si5351_start_xfer(reg);
     while (count-- > 0)
-        (void) I2C_1_I2CMasterWriteByte(data ? *data++ : 0x00);
-    I2C_1_I2CMasterSendStop();
+        (void) I2C_1_MasterWriteByte(data ? *data++ : 0x00);
+    I2C_1_MasterSendStop();
+#else
+    while (count-- > 0) {
+        si5351_start_xfer(reg++);
+        (void) I2C_1_MasterWriteByte(data ? *data++ : 0x00);
+        I2C_1_MasterSendStop();
+    }
+#endif
 }
 
 void
 si5351_read_xfer(uint8_t reg, uint8_t *data, int count)
 {
     si5351_start_xfer(reg);
-    I2C_1_I2CMasterSendStop();
-    (void) I2C_1_I2CMasterSendStart(SI5351_I2C_ADDR, I2C_1_I2C_READ_XFER_MODE);
+    I2C_1_MasterSendStop();
+    (void) I2C_1_MasterSendStart(SI5351_I2C_ADDR, I2C_1_READ_XFER_MODE);
     
     while (count > 1) {
-        *data++ = I2C_1_I2CMasterReadByte(I2C_1_I2C_ACK_DATA);
+        *data++ = I2C_1_MasterReadByte(I2C_1_ACK_DATA);
         count--;
     }
     
     if (count == 1) {
-        *data++ = I2C_1_I2CMasterReadByte(I2C_1_I2C_NAK_DATA);
+        *data++ = I2C_1_MasterReadByte(I2C_1_NAK_DATA);
     }
-    I2C_1_I2CMasterSendStop();
+    I2C_1_MasterSendStop();
 }
 
 void
@@ -65,21 +73,6 @@ si5351_read_byte(uint8_t reg)
     return (data);
 }
 
-/*
-
- 16,0x4F
- 
-27,05h
-29,0Ah
- 30,B3h
-33,01h
-43,01h
-45,19h
-183,D2h
-*/
-
-
-
 int main()
 {
     int32_t freq, pll_freq, count = 0;
@@ -92,11 +85,15 @@ int main()
     I2C_1_Start();
     
     si5351_init(27000000, 1612, SI5351_CRYSTAL_LOAD_10PF);
-    
     si5351_clock_enable(SI5351_CLK0, 1);
     si5351_drive_strength(SI5351_CLK0, SI5351_DRIVE_4MA);
-    pll_freq = si5351_set_frequency(11700000, 0, SI5351_CLK0, SI5351_MS_MODE_FRAC);
-
+   // pll_freq = si5351_set_frequency(190000000, 0, SI5351_CLK0);
+    
+  //  pll_freq = si5351_set_frequency(155000000, 0, SI5351_CLK0);
+  //  pll_freq = si5351_set_frequency(156000000, 0, SI5351_CLK0);
+    pll_freq = si5351_set_frequency(155000000, 0, SI5351_CLK0, 1);
+    pll_freq = si5351_set_frequency(11700000, 0, SI5351_CLK0, 1);
+    
 #if 0
     si5351_calibration_mode(1);
     // while (1) ;
@@ -118,11 +115,11 @@ int main()
 #endif
 
     pll_freq = 0;
-    while (1)  // ;
+    while (1) //  ;
     {
         //Control_Reg_1_Write(a++ & 1);
         for (freq = 11700000; freq < 11702000; freq += 1) {
-            int rv = si5351_set_frequency(freq, pll_freq, SI5351_CLK0, SI5351_MS_MODE_FRAC);
+            int rv = si5351_set_frequency(freq, pll_freq, SI5351_CLK0, 0);
         }
     }
         
