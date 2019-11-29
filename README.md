@@ -1,6 +1,6 @@
 # si5351-generic
 # NO LONGER MAINTAINED; FOR REFERENCE ONLY
-# See https://github.com/etherkit/Si5351Arduino for the maintained report
+# See https://github.com/etherkit/Si5351Arduino for the maintained repo
 
 Generic Si5351A3 control functions
 
