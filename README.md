@@ -1,4 +1,7 @@
 # si5351-generic
+# NO LONGER MAINTAINED; FOR REFERENCE ONLY
+# See https://github.com/etherkit/Si5351Arduino for the maintained report
+
 Generic Si5351A3 control functions
 
 Dana H. Myers  K6JQ
